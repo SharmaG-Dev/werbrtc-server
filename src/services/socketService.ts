@@ -50,13 +50,15 @@ class SocketService {
             socket.emit('show-devices', data)
         });
 
+        socket.on('clear' , async () => {
+            this.avaliableDevices.clear()
+            this.socketToDeviceIp.clear()
+        })
+
 
         socket.on('answer', (data) => {
             const targetDevice = this.getSocketByDeviceIp(data.targetIp);
             const fromIp = this.socketToDeviceIp.get(socket.id);
-            
-            console.log('💬 Answer - Target IP:', data.targetIp)
-            console.log('💬 Answer - From IP:', fromIp)
 
             if (targetDevice) {
                 this.io.to(targetDevice.id).emit('answer', {
@@ -72,17 +74,12 @@ class SocketService {
         socket.on('offer', (data) => {
             const targetDevice = this.getSocketByDeviceIp(data.targetIp);
             const fromIp = this.socketToDeviceIp.get(socket.id);
-            
-            console.log('🔍 Offer - Target IP:', data.targetIp)
-            console.log('🔍 Offer - From IP:', fromIp)
-            console.log('🔍 Offer - Target Socket:', targetDevice?.id)
 
             if (targetDevice) {
                 this.io.to(targetDevice.id).emit('offer', {
                     from: fromIp,
                     sdp: data.sdp
                 });
-                console.log('✅ Offer forwarded to', data.targetIp)
             } else {
                 console.log('❌ Target device not found:', data.targetIp)
             }
