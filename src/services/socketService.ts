@@ -51,38 +51,50 @@ class SocketService {
         });
 
 
-        socket.on('offer', (data) => {
+        socket.on('answer', (data) => {
             const targetDevice = this.getSocketByDeviceIp(data.targetIp);
+            const fromIp = this.socketToDeviceIp.get(socket.id);
+            
+            console.log('💬 Answer - Target IP:', data.targetIp)
+            console.log('💬 Answer - From IP:', fromIp)
+
             if (targetDevice) {
-                this.io.to(targetDevice.id).emit('offer', {
-                    from: this.socketToDeviceIp.get(socket.id),
+                this.io.to(targetDevice.id).emit('answer', {
+                    from: fromIp,
                     sdp: data.sdp
                 });
+                console.log('✅ Answer forwarded to', data.targetIp)
+            } else {
+                console.log('❌ Target device not found for answer:', data.targetIp)
             }
         })
 
         socket.on('offer', (data) => {
             const targetDevice = this.getSocketByDeviceIp(data.targetIp);
-
-            console.log('🔍 Looking for device IP:', data.targetIp) // Add this
-            console.log('🔍 Found socket:', targetDevice?.id) // Add this
+            const fromIp = this.socketToDeviceIp.get(socket.id);
+            
+            console.log('🔍 Offer - Target IP:', data.targetIp)
+            console.log('🔍 Offer - From IP:', fromIp)
+            console.log('🔍 Offer - Target Socket:', targetDevice?.id)
 
             if (targetDevice) {
                 this.io.to(targetDevice.id).emit('offer', {
-                    from: this.socketToDeviceIp.get(socket.id),
+                    from: fromIp,
                     sdp: data.sdp
                 });
-                console.log('✅ Offer forwarded to', data.targetIp) // Add this
+                console.log('✅ Offer forwarded to', data.targetIp)
             } else {
-                console.log('❌ Target device not found:', data.targetIp) // Add this
+                console.log('❌ Target device not found:', data.targetIp)
             }
         })
 
         socket.on('ice-candidate', (data) => {
             const targetDevice = this.getSocketByDeviceIp(data.targetIp);
+            const fromIp = this.socketToDeviceIp.get(socket.id);
+            
             if (targetDevice) {
                 this.io.to(targetDevice.id).emit('ice-candidate', {
-                    from: this.socketToDeviceIp.get(socket.id),
+                    from: fromIp,
                     candidate: data.candidate
                 });
             }
