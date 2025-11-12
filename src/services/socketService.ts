@@ -65,7 +65,6 @@ class SocketService {
                     from: fromIp,
                     sdp: data.sdp
                 });
-                console.log('✅ Answer forwarded to', data.targetIp)
             } else {
                 console.log('❌ Target device not found for answer:', data.targetIp)
             }
@@ -94,6 +93,48 @@ class SocketService {
                     from: fromIp,
                     candidate: data.candidate
                 });
+            }
+        });
+
+        socket.on('webrtc-connected', (data) => {
+            const targetDevice = this.getSocketByDeviceIp(data.targetIp);
+            const fromIp = this.socketToDeviceIp.get(socket.id);
+        
+            if (targetDevice && fromIp) {
+                this.io.to(targetDevice.id).emit('webrtc-connection-notify', {
+                    fromIp: fromIp
+                });
+                const fromDevice = this.avaliableDevices.get(fromIp);
+                const targetDeviceData = this.avaliableDevices.get(data.targetIp);
+        
+                if (fromDevice && targetDeviceData) {
+                    if (!fromDevice.pairedDevices.includes(data.targetIp)) {
+                        fromDevice.pairedDevices.push(data.targetIp);
+                    }
+                    if (!targetDeviceData.pairedDevices.includes(fromIp)) {
+                        targetDeviceData.pairedDevices.push(fromIp);
+                    }
+                }
+            }
+        });
+        
+        socket.on('webrtc-disconnected', (data) => {
+            const targetDevice = this.getSocketByDeviceIp(data.targetIp);
+            const fromIp = this.socketToDeviceIp.get(socket.id);
+        
+            if (targetDevice && fromIp) {
+                this.io.to(targetDevice.id).emit('webrtc-disconnection-notify', {
+                    fromIp: fromIp
+                });
+                const fromDevice = this.avaliableDevices.get(fromIp);
+                const targetDeviceData = this.avaliableDevices.get(data.targetIp);
+        
+                if (fromDevice) {
+                    fromDevice.pairedDevices = fromDevice.pairedDevices.filter(ip => ip !== data.targetIp);
+                }
+                if (targetDeviceData) {
+                    targetDeviceData.pairedDevices = targetDeviceData.pairedDevices.filter(ip => ip !== fromIp);
+                }
             }
         });
 
