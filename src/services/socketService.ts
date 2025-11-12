@@ -70,11 +70,18 @@ class SocketService {
             }
         })
 
-        socket.on('offer', (data) => {
+        socket.on('offer', async (data) => {
             const targetDevice = this.getSocketByDeviceIp(data.targetIp);
-            const fromIp = this.socketToDeviceIp.get(socket.id);
-
-            if (targetDevice) {
+            const fromIp = await this.socketToDeviceIp.get(socket.id);
+            if (!fromIp) return null
+            const fromDevice = this.avaliableDevices.get(fromIp);
+        
+            if (targetDevice && fromIp) {
+                this.io.to(targetDevice.id).emit('incoming-connection', {
+                    fromIp: fromIp,
+                    fromName: fromDevice?.deviceInfo?.name || 'Unknown Device'
+                });
+        
                 this.io.to(targetDevice.id).emit('offer', {
                     from: fromIp,
                     sdp: data.sdp
