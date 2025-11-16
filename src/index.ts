@@ -8,6 +8,7 @@ import SocketService from './services/socketService'
 import V1Routes from './routes/v1/app'
 import cors from 'cors'
 import { User } from '@prisma/client'
+import morgan from 'morgan'
 
 
 declare global {
@@ -27,7 +28,7 @@ app.use(express.json())
 const socket = new SocketService(io)
 socket.initialize()
 
-
+app.use(morgan('dev'))
 app.use('/api/v1' , V1Routes)
 
 httpServer.listen(PORT, () => {
