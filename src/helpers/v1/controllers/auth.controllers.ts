@@ -9,8 +9,8 @@ export const handleUserRegistered = async (req: Request, res: Response) => {
     try {
         const data = req.body as UserRegister
         const userServices = new UserServices()
-        const resp = userServices.authentications(data)
-        return res.status(200).json(resp)
+        const resp =await  userServices.authentications(data)
+        return res.status(200).json({token: resp})
     } catch (error:any) {
         return res.status(500).json({error:error.message})
     }

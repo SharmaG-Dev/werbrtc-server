@@ -32,7 +32,7 @@ class UserServices {
         return this.authResponse(newUser)
     }
 
-    async authResponse(data: User) {
+    async authResponse(data: User):Promise<string> {
         const payload = {
             name: data.name,
             email: data.email
