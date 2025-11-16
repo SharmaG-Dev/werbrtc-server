@@ -1,8 +1,8 @@
-import { DeviceData } from "./device";
+import { DeviceData, RegisterDevice } from "./device";
 
 
 
-export interface UserRegister extends DeviceData {
+export interface UserRegister extends RegisterDevice {
     name: string
     email: string
 }

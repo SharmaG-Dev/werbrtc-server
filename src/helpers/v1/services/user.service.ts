@@ -13,7 +13,7 @@ class UserServices {
     }
 
     async authentications(data: UserRegister) {
-        const findUser = await this.prisma.user.findFirst({ where: { device: { deviceIp: data.deviceInfo.deviceIp } } })
+        const findUser = await this.prisma.user.findFirst({ where: { device: { deviceIp: data.deviceIp } } })
         if (findUser) return this.authResponse(findUser)
         const newUser = await this.prisma.user.create({
             data: {
@@ -21,10 +21,10 @@ class UserServices {
                 email: data.email,
                 device: {
                     create: {
-                        deviceIp: data.deviceInfo.deviceIp,
-                        name: data.deviceInfo.name,
-                        deviceType: data.deviceInfo.deviceType,
-                        deviceModel: data.deviceInfo.deviceModel
+                        deviceIp: data.deviceIp,
+                        name: data.name,
+                        deviceType: data.deviceType,
+                        deviceModel: data.deviceModel
                     }
                 }
             }
